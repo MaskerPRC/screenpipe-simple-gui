@@ -49,13 +49,15 @@
     "files": [
       "dist/**/*",
       "electron/**/*",
-      "!node_modules/**/*",
       "node_modules/better-sqlite3/**/*",
-      "node_modules/@electron/**/*",
+      "node_modules/bindings/**/*",
+      "node_modules/file-uri-to-path/**/*",
       "package.json"
     ],
     "asarUnpack": [
-      "node_modules/better-sqlite3/**/*"
+      "node_modules/better-sqlite3/**/*",
+      "node_modules/bindings/**/*",
+      "node_modules/file-uri-to-path/**/*"
     ],
     "win": {
       "target": [
