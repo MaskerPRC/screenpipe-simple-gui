@@ -35,9 +35,15 @@ let mainWindow = null
 let db = null
 
 function createWindow() {
+  // 设置窗口图标路径
+  const iconPath = app.isPackaged
+    ? join(process.resourcesPath, 'app.asar', 'build', 'icons', '512x512.png')
+    : join(__dirname, '..', 'build', 'icons', '512x512.png')
+
   mainWindow = new BrowserWindow({
     width: 1400,
     height: 900,
+    icon: iconPath,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
