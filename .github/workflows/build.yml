@@ -24,6 +24,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup Python (for native modules on macOS)
+        if: matrix.platform == 'mac'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Python setuptools (for distutils on macOS)
+        if: matrix.platform == 'mac'
+        run: pip install setuptools
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
