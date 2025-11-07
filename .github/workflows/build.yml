@@ -99,7 +99,11 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            artifacts/**/*
+            artifacts/**/*.exe
+            artifacts/**/*.dmg
+            artifacts/**/*.AppImage
+            artifacts/**/*.blockmap
+            artifacts/**/latest*.yml
           draft: false
           prerelease: false
         env:
