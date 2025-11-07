@@ -96,13 +96,6 @@
             :title="formatTimestamp(marker.time) + ' (有截图)'"
             @click="updateCurrentFrame(marker.time)"
           ></div>
-          <!-- 测试标记点（用于调试） -->
-          <div 
-            v-if="availableFrameMarkers.length === 0 && frameAvailabilityCache.size > 0"
-            class="timeline-marker timeline-marker-available"
-            style="left: 50%; background: red !important;"
-            title="测试标记点"
-          ></div>
         </div>
       </div>
       <div class="timeline-controls">
@@ -225,33 +218,12 @@ const availableFrameMarkers = computed(() => {
     }
   })
   
-  // 调试信息
-  const availableCount = Array.from(frameAvailabilityCache.values()).filter(v => v === true).length
-  const unavailableCount = Array.from(frameAvailabilityCache.values()).filter(v => v === false).length
-  
-  if (markers.length > 0) {
-    console.log(`[availableFrameMarkers] 当前有 ${markers.length} 个可用帧标记点, 总帧数: ${props.frames.length}, 缓存大小: ${frameAvailabilityCache.size}, 可用: ${availableCount}, 不可用: ${unavailableCount}`)
-    // 输出前几个标记点的信息用于调试
-    if (markers.length > 0) {
-      console.log('[availableFrameMarkers] 前3个标记点:', markers.slice(0, 3).map(m => ({ frameId: m.frameId, percent: m.percent.toFixed(2) })))
-    }
-  } else {
-    console.log(`[availableFrameMarkers] 没有可用标记点, 总帧数: ${props.frames.length}, 缓存大小: ${frameAvailabilityCache.size}, 可用: ${availableCount}, 不可用: ${unavailableCount}`)
-    // 如果缓存有数据但没有标记点，检查一下缓存内容
-    if (frameAvailabilityCache.size > 0) {
-      const sampleKeys = Array.from(frameAvailabilityCache.keys()).slice(0, 5)
-      console.log('[availableFrameMarkers] 缓存示例:', sampleKeys.map(k => ({ key: k, value: frameAvailabilityCache.get(k) })))
-    }
-  }
-  
   return markers
 })
 
 // 预检查帧可用性（后台任务）
 async function precheckFrameAvailability() {
   if (props.frames.length === 0) return
-  
-  console.log('[precheckFrameAvailability] 开始预检查帧可用性, 总帧数:', props.frames.length)
   
   // 分批检查，避免一次性检查太多导致阻塞
   const batchSize = 10
@@ -270,29 +242,14 @@ async function precheckFrameAvailability() {
       }
       
       // 检查帧是否可用
-      const isAvailable = await isFrameAvailable(frame)
+      await isFrameAvailable(frame)
       checkedCount++
-      
-      // 每检查 50 个帧输出一次日志
-      if (checkedCount % 50 === 0) {
-        console.log(`[precheckFrameAvailability] 已检查 ${checkedCount}/${props.frames.length} 帧`)
-      }
     }))
     
     // 每批之间稍作延迟，避免阻塞 UI
     if (i + batchSize < props.frames.length) {
       await new Promise(resolve => setTimeout(resolve, 10))
     }
-  }
-  
-  const finalAvailableCount = Array.from(frameAvailabilityCache.values()).filter(v => v === true).length
-  const finalUnavailableCount = Array.from(frameAvailabilityCache.values()).filter(v => v === false).length
-  console.log('[precheckFrameAvailability] 预检查完成, 已检查:', checkedCount, '帧, 缓存大小:', frameAvailabilityCache.size, '可用:', finalAvailableCount, '不可用:', finalUnavailableCount)
-  
-  // 强制触发响应式更新
-  // 通过访问 timeRange 来触发 computed 重新计算
-  if (timeRange.value.start && timeRange.value.end) {
-    console.log('[precheckFrameAvailability] 触发 availableFrameMarkers 重新计算')
   }
 }
 
@@ -330,13 +287,11 @@ async function updateCurrentFrame(time) {
   // 如果加载失败且是空文件错误，尝试查找下一个有效帧（仅在拖动时间线时）
   // 注意：stepBackward 和 stepForward 已经处理了跳过逻辑，这里只处理拖动时间线的情况
   if (!loadResult && error.value && error.value.includes('文件大小为 0')) {
-    console.log('[updateCurrentFrame] 检测到空文件，尝试查找下一个有效帧')
     const currentIndex = props.frames.findIndex(f => f.id === frame.id)
     if (currentIndex >= 0 && currentIndex < props.frames.length - 1) {
       // 尝试下一个帧
       const nextFrame = props.frames[currentIndex + 1]
       if (nextFrame) {
-        console.log('[updateCurrentFrame] 跳转到下一个帧:', nextFrame.id)
         currentFrame.value = nextFrame
         currentTime.value = new Date(nextFrame.timestamp)
         emit('frame-change', nextFrame)
@@ -353,11 +308,8 @@ async function updateCurrentFrame(time) {
 // 返回 true 表示成功，false 表示失败
 async function loadImage(frame) {
   if (!frame) {
-    console.log('[loadImage] frame 为空，返回')
     return false
   }
-  
-  console.log('[loadImage] 开始加载图片, frame.id:', frame.id, 'frame.name:', frame.name, 'offset_index:', frame.offset_index)
   
   loading.value = true
   error.value = ''
@@ -369,18 +321,12 @@ async function loadImage(frame) {
       const videoPath = frame.name
       const frameIndex = frame.offset_index || 0
       
-      console.log('[loadImage] 检测到视频文件, videoPath:', videoPath, 'frameIndex:', frameIndex)
-      
       // 检查缓存
       let videoBlobUrl = videoCache.get(videoPath)
       
       if (!videoBlobUrl) {
-        console.log('[loadImage] 缓存未命中，通过 IPC 读取视频文件')
-        const startTime = Date.now()
         // 缓存未命中，通过 IPC 读取视频文件
         const videoResult = await window.electronAPI.readVideoFile(videoPath)
-        const loadTime = Date.now() - startTime
-        console.log('[loadImage] IPC 读取视频完成, 耗时:', loadTime, 'ms, success:', videoResult.success)
         
         if (!videoResult.success) {
           console.error('[loadImage] 读取视频失败:', videoResult.error)
@@ -403,12 +349,9 @@ async function loadImage(frame) {
         if (videoResult.data && videoResult.data.fileSize > 0) {
           frameAvailabilityCache.set(cacheKey, true)
           cacheUpdateTrigger.value++
-          console.log(`[loadImage] 标记帧为可用: frame.id=${frame.id}, fileSize=${videoResult.data.fileSize}`)
         } else {
           frameAvailabilityCache.set(cacheKey, false)
           cacheUpdateTrigger.value++
-          cacheUpdateTrigger.value++
-          console.log(`[loadImage] 标记帧为不可用: frame.id=${frame.id}, fileSize=${videoResult.data?.fileSize || 0}`)
         }
         
         // 检查文件路径是否有效
@@ -423,23 +366,14 @@ async function loadImage(frame) {
         // 这样不需要将整个文件加载到内存
         const encodedPath = encodeURIComponent(videoPath)
         videoBlobUrl = `pipeline-video://${encodedPath}`
-        console.log('[loadImage] 使用 pipeline-video 协议, 路径:', videoPath)
         // 存入缓存
         videoCache.set(videoPath, videoBlobUrl)
-        console.log('[loadImage] 已存入缓存')
-      } else {
-        console.log('[loadImage] 使用缓存的视频 Blob URL')
       }
       
       // 使用 video 元素和 canvas 提取帧（使用 Blob URL）
-      console.log('[loadImage] 开始提取帧')
-      const extractStartTime = Date.now()
       const imageData = await extractFrameFromVideo(videoBlobUrl, frameIndex)
-      const extractTime = Date.now() - extractStartTime
-      console.log('[loadImage] 帧提取完成, 耗时:', extractTime, 'ms')
       
       if (imageData) {
-        console.log('[loadImage] 成功获取图像数据, 长度:', imageData.length)
         imageSrc.value = imageData
         // 更新缓存：标记为可用
         const cacheKey = `${frame.id}_${frame.name}`
@@ -457,7 +391,6 @@ async function loadImage(frame) {
     } else {
       // 尝试直接读取图片文件
       const imagePath = frame.name
-      console.log('[loadImage] 尝试读取图片文件:', imagePath)
       if (imagePath) {
         const result = await window.electronAPI.readImageFile(imagePath)
         if (result.success) {
@@ -490,28 +423,20 @@ async function loadImage(frame) {
     return false
   } finally {
     loading.value = false
-    console.log('[loadImage] 加载完成')
   }
 }
 
         // 从视频文件中提取帧（使用浏览器原生 API）
         // videoBlobUrl 是 pipeline-video:// 协议 URL 或 Blob URL
         function extractFrameFromVideo(videoBlobUrl, frameIndex) {
-          console.log('[extractFrameFromVideo] 开始提取帧, frameIndex:', frameIndex)
-          console.log('[extractFrameFromVideo] videoBlobUrl:', videoBlobUrl)
-          
           return new Promise((resolve, reject) => {
             // 如果视频源相同，复用 video 元素
             let video = cachedVideoElement
             const needNewVideo = !video || cachedVideoSrc !== videoBlobUrl
             
-            console.log('[extractFrameFromVideo] needNewVideo:', needNewVideo, 'cachedVideoElement存在:', !!cachedVideoElement, 'readyState:', video?.readyState)
-            
             if (needNewVideo) {
-              console.log('[extractFrameFromVideo] 创建新的 video 元素')
               // 清理旧的 video 元素
               if (video) {
-                console.log('[extractFrameFromVideo] 清理旧的 video 元素')
                 video.pause()
                 video.src = ''
                 video.load()
@@ -525,26 +450,8 @@ async function loadImage(frame) {
               video.playsInline = true
               video.src = videoBlobUrl
               
-              console.log('[extractFrameFromVideo] 设置 video.src:', videoBlobUrl)
-              
-              // 添加更多事件监听器用于调试
-              video.addEventListener('loadstart', () => {
-                console.log('[extractFrameFromVideo] loadstart 事件, readyState:', video.readyState)
-              }, { once: true })
-              video.addEventListener('progress', () => {
-                console.log('[extractFrameFromVideo] progress 事件, readyState:', video.readyState, 'buffered:', video.buffered.length)
-              }, { once: true })
-              video.addEventListener('canplay', () => {
-                console.log('[extractFrameFromVideo] canplay 事件, readyState:', video.readyState)
-              }, { once: true })
-              video.addEventListener('canplaythrough', () => {
-                console.log('[extractFrameFromVideo] canplaythrough 事件, readyState:', video.readyState)
-              }, { once: true })
-              
               cachedVideoElement = video
               cachedVideoSrc = videoBlobUrl
-            } else {
-              console.log('[extractFrameFromVideo] 复用现有 video 元素, readyState:', video.readyState)
             }
     
     let timeoutId = null
@@ -553,22 +460,18 @@ async function loadImage(frame) {
     let errorHandler = null
     
     const cleanup = () => {
-      console.log('[extractFrameFromVideo] cleanup 被调用')
       if (timeoutId) {
         clearTimeout(timeoutId)
         timeoutId = null
       }
       if (metadataHandler && video) {
         video.removeEventListener('loadedmetadata', metadataHandler)
-        console.log('[extractFrameFromVideo] 移除 loadedmetadata 监听器')
       }
       if (seekedHandler && video) {
         video.removeEventListener('seeked', seekedHandler)
-        console.log('[extractFrameFromVideo] 移除 seeked 监听器')
       }
       if (errorHandler && video) {
         video.removeEventListener('error', errorHandler)
-        console.log('[extractFrameFromVideo] 移除 error 监听器')
       }
     }
     
@@ -581,13 +484,10 @@ async function loadImage(frame) {
     
     // 定义 seekedHandler，用于提取帧
     seekedHandler = () => {
-      console.log('[extractFrameFromVideo] seeked 事件触发, currentTime:', video.currentTime)
       try {
         const canvas = document.createElement('canvas')
         canvas.width = video.videoWidth
         canvas.height = video.videoHeight
-        
-        console.log('[extractFrameFromVideo] canvas 尺寸:', canvas.width, 'x', canvas.height)
         
         if (canvas.width === 0 || canvas.height === 0) {
           console.error('[extractFrameFromVideo] 视频尺寸无效')
@@ -598,11 +498,9 @@ async function loadImage(frame) {
         
         const ctx = canvas.getContext('2d')
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
-        console.log('[extractFrameFromVideo] 已绘制到 canvas')
         
         // 使用 JPEG 格式，质量 0.85，平衡质量和速度
         const imageData = canvas.toDataURL('image/jpeg', 0.85)
-        console.log('[extractFrameFromVideo] 成功提取帧, imageData长度:', imageData.length)
         cleanup()
         resolve(imageData)
       } catch (err) {
@@ -624,21 +522,16 @@ async function loadImage(frame) {
     // 先添加事件监听器
     video.addEventListener('seeked', seekedHandler, { once: true })
     video.addEventListener('error', errorHandler, { once: true })
-    console.log('[extractFrameFromVideo] 已添加 seeked 和 error 监听器')
     
     // 如果 video 已经加载过元数据，直接跳转
     if (!needNewVideo && video.readyState >= 2) {
-      console.log('[extractFrameFromVideo] video 已加载元数据，直接跳转, readyState:', video.readyState, 'duration:', video.duration)
       // 视频已经加载了元数据，直接跳转
       const timeInSeconds = frameIndex / 30 // 假设 30fps
-      console.log('[extractFrameFromVideo] 计算时间点:', timeInSeconds, '秒')
       if (video.duration > 0) {
         const targetTime = Math.min(Math.max(0, timeInSeconds), video.duration - 0.1)
-        console.log('[extractFrameFromVideo] 设置 currentTime:', targetTime, '当前 currentTime:', video.currentTime)
         
         // 如果目标时间与当前时间相同或非常接近，直接提取帧
         if (Math.abs(video.currentTime - targetTime) < 0.01) {
-          console.log('[extractFrameFromVideo] 时间点相同，直接提取帧')
           // 使用 setTimeout 确保 video 状态稳定
           setTimeout(() => {
             seekedHandler()
@@ -646,7 +539,6 @@ async function loadImage(frame) {
         } else {
           // 设置新的时间点，等待 seeked 事件
           video.currentTime = targetTime
-          console.log('[extractFrameFromVideo] 已设置 currentTime，等待 seeked 事件')
         }
       } else {
         console.error('[extractFrameFromVideo] video.duration 无效:', video.duration)
@@ -655,15 +547,11 @@ async function loadImage(frame) {
         return
       }
     } else {
-      console.log('[extractFrameFromVideo] 需要等待元数据加载, readyState:', video.readyState)
       // 需要等待元数据加载
       metadataHandler = () => {
-        console.log('[extractFrameFromVideo] loadedmetadata 事件触发, duration:', video.duration, 'videoWidth:', video.videoWidth, 'videoHeight:', video.videoHeight)
         const timeInSeconds = frameIndex / 30 // 假设 30fps
-        console.log('[extractFrameFromVideo] 计算时间点:', timeInSeconds, '秒')
         if (video.duration > 0) {
           const targetTime = Math.min(Math.max(0, timeInSeconds), video.duration - 0.1)
-          console.log('[extractFrameFromVideo] 设置 currentTime:', targetTime)
           video.currentTime = targetTime
         } else {
           console.error('[extractFrameFromVideo] video.duration 无效:', video.duration)
@@ -672,8 +560,6 @@ async function loadImage(frame) {
         }
       }
       video.addEventListener('loadedmetadata', metadataHandler, { once: true })
-      console.log('[extractFrameFromVideo] 已添加 loadedmetadata 监听器')
-      console.log('[extractFrameFromVideo] 调用 video.load(), readyState:', video.readyState)
       video.load()
     }
   })
@@ -784,16 +670,13 @@ function stopPlayback() {
 // 检查帧是否可用（文件不为空）
 async function isFrameAvailable(frame) {
   if (!frame || !frame.name) {
-    console.log('[isFrameAvailable] frame 或 name 为空')
     return false
   }
   
   // 检查缓存
   const cacheKey = `${frame.id}_${frame.name}`
   if (frameAvailabilityCache.has(cacheKey)) {
-    const cached = frameAvailabilityCache.get(cacheKey)
-    console.log(`[isFrameAvailable] 使用缓存: frame.id=${frame.id}, cached=${cached}`)
-    return cached
+    return frameAvailabilityCache.get(cacheKey)
   }
   
   let isAvailable = false
@@ -803,7 +686,6 @@ async function isFrameAvailable(frame) {
     try {
       const result = await window.electronAPI.readVideoFile(frame.name)
       isAvailable = result.success && result.data && result.data.fileSize > 0
-      console.log(`[isFrameAvailable] 检查视频文件: frame.id=${frame.id}, success=${result.success}, fileSize=${result.data?.fileSize || 0}, isAvailable=${isAvailable}`)
     } catch (err) {
       console.error('[isFrameAvailable] 检查帧可用性失败:', err)
       isAvailable = false
@@ -811,14 +693,12 @@ async function isFrameAvailable(frame) {
   } else {
     // 对于图片文件，假设可用（可以后续优化）
     isAvailable = true
-    console.log(`[isFrameAvailable] 图片文件，假设可用: frame.id=${frame.id}`)
   }
   
   // 存入缓存
   frameAvailabilityCache.set(cacheKey, isAvailable)
   // 触发响应式更新
   cacheUpdateTrigger.value++
-  console.log(`[isFrameAvailable] 存入缓存: frame.id=${frame.id}, isAvailable=${isAvailable}, 缓存大小=${frameAvailabilityCache.size}, trigger=${cacheUpdateTrigger.value}`)
   return isAvailable
 }
 
@@ -832,12 +712,10 @@ async function findPreviousAvailableFrame(startIndex) {
   for (let i = startIndex - 1; i >= startIndex - maxSearch && i >= 0; i--) {
     const frame = props.frames[i]
     if (frame && await isFrameAvailable(frame)) {
-      console.log(`[findPreviousAvailableFrame] 找到可用帧: id=${frame.id}, index=${i}`)
       return frame
     }
   }
   
-  console.log('[findPreviousAvailableFrame] 未找到可用的上一个帧')
   return null
 }
 
@@ -851,12 +729,10 @@ async function findNextAvailableFrame(startIndex) {
   for (let i = startIndex + 1; i <= startIndex + maxSearch && i < props.frames.length; i++) {
     const frame = props.frames[i]
     if (frame && await isFrameAvailable(frame)) {
-      console.log(`[findNextAvailableFrame] 找到可用帧: id=${frame.id}, index=${i}`)
       return frame
     }
   }
   
-  console.log('[findNextAvailableFrame] 未找到可用的下一个帧')
   return null
 }
 
@@ -877,7 +753,6 @@ async function stepBackward() {
       updateCurrentFrame(previousFrame.timestamp)
     } else {
       // 如果不可用，查找最近的上一个可用帧
-      console.log('[stepBackward] 上一个帧不可用，查找最近的上一个可用帧')
       const availableFrame = await findPreviousAvailableFrame(currentIndex)
       if (availableFrame) {
         updateCurrentFrame(availableFrame.timestamp)
@@ -905,7 +780,6 @@ async function stepForward() {
       updateCurrentFrame(nextFrame.timestamp)
     } else {
       // 如果不可用，查找最近的下一个可用帧
-      console.log('[stepForward] 下一个帧不可用，查找最近的下一个可用帧')
       const availableFrame = await findNextAvailableFrame(currentIndex)
       if (availableFrame) {
         updateCurrentFrame(availableFrame.timestamp)
