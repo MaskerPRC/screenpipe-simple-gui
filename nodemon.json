@@ -1,0 +1,10 @@
+{
+  "watch": ["electron"],
+  "ext": "js,json",
+  "ignore": ["node_modules", "dist", "src", "*.test.js"],
+  "exec": "electron .",
+  "env": {
+    "NODE_ENV": "development"
+  }
+}
+

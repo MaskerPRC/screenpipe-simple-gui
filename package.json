@@ -1,0 +1,40 @@
+{
+  "name": "pipeline-gui",
+  "version": "1.0.0",
+  "description": "Pipeline数据库可视化工具",
+  "main": "electron/main.js",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "postinstall": "electron-rebuild -f -w better-sqlite3",
+    "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && electron .\"",
+    "electron:dev:watch": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && nodemon\"",
+    "electron:build": "npm run build && electron-builder"
+  },
+  "keywords": [
+    "electron",
+    "vue",
+    "sqlite",
+    "pipeline"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "better-sqlite3": "^12.4.1",
+    "vue": "^3.4.0",
+    "vue-router": "^4.2.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.0",
+    "concurrently": "^8.2.2",
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1",
+    "electron-rebuild": "^3.2.9",
+    "electron-reloader": "^1.2.3",
+    "nodemon": "^3.1.10",
+    "vite": "^5.0.0",
+    "wait-on": "^7.2.0"
+  }
+}

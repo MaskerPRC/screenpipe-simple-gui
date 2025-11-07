@@ -1,0 +1,2140 @@
+{
+  "databasePath": "C:\\Users\\song8\\.screenpipe\\db.sqlite",
+  "analyzedAt": "2025-11-06T19:28:34.651Z",
+  "tables": [
+    {
+      "name": "_sqlx_migrations",
+      "columns": [
+        {
+          "name": "version",
+          "type": "BIGINT",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": true
+        },
+        {
+          "name": "description",
+          "type": "TEXT",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "installed_on",
+          "type": "TIMESTAMP",
+          "notnull": true,
+          "dflt_value": "CURRENT_TIMESTAMP",
+          "pk": false
+        },
+        {
+          "name": "success",
+          "type": "BOOLEAN",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "checksum",
+          "type": "BLOB",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "execution_time",
+          "type": "BIGINT",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": false
+        }
+      ],
+      "recordCount": 37,
+      "sampleData": [
+        {
+          "version": 20240703111257,
+          "description": "screenpipe",
+          "installed_on": "2025-11-06 19:03:28",
+          "success": 1,
+          "checksum": "[BLOB: 48 bytes]",
+          "execution_time": 3120100
+        },
+        {
+          "version": 20240715121444,
+          "description": "indexes",
+          "installed_on": "2025-11-06 19:03:28",
+          "success": 1,
+          "checksum": "[BLOB: 48 bytes]",
+          "execution_time": 2704400
+        },
+        {
+          "version": 20240716120000,
+          "description": "add fields to ocr text",
+          "installed_on": "2025-11-06 19:03:28",
+          "success": 1,
+          "checksum": "[BLOB: 48 bytes]",
+          "execution_time": 2615700
+        },
+        {
+          "version": 20240716120001,
+          "description": "update ocr text table",
+          "installed_on": "2025-11-06 19:03:28",
+          "success": 1,
+          "checksum": "[BLOB: 48 bytes]",
+          "execution_time": 3347400
+        },
+        {
+          "version": 20240716120002,
+          "description": "snake case",
+          "installed_on": "2025-11-06 19:03:28",
+          "success": 1,
+          "checksum": "[BLOB: 48 bytes]",
+          "execution_time": 2363800
+        }
+      ]
+    },
+    {
+      "name": "audio_chunks",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": true
+        },
+        {
+          "name": "file_path",
+          "type": "TEXT",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "timestamp",
+          "type": "TIMESTAMP",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        }
+      ],
+      "recordCount": 0,
+      "sampleData": []
+    },
+    {
+      "name": "audio_tags",
+      "columns": [
+        {
+          "name": "audio_chunk_id",
+          "type": "INTEGER",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": true
+        },
+        {
+          "name": "tag_id",
+          "type": "INTEGER",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": false
+        }
+      ],
+      "recordCount": 0,
+      "sampleData": []
+    },
+    {
+      "name": "audio_transcriptions",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": true
+        },
+        {
+          "name": "audio_chunk_id",
+          "type": "INTEGER",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "offset_index",
+          "type": "INTEGER",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "timestamp",
+          "type": "TIMESTAMP",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "transcription",
+          "type": "TEXT",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "device",
+          "type": "TEXT",
+          "notnull": true,
+          "dflt_value": "''",
+          "pk": false
+        },
+        {
+          "name": "is_input_device",
+          "type": "BOOLEAN",
+          "notnull": true,
+          "dflt_value": "TRUE",
+          "pk": false
+        },
+        {
+          "name": "speaker_id",
+          "type": "INTEGER",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "transcription_engine",
+          "type": "TEXT",
+          "notnull": true,
+          "dflt_value": "'Whisper'",
+          "pk": false
+        },
+        {
+          "name": "start_time",
+          "type": "REAL",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "end_time",
+          "type": "REAL",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "text_length",
+          "type": "INTEGER",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        }
+      ],
+      "recordCount": 0,
+      "sampleData": []
+    },
+    {
+      "name": "audio_transcriptions_fts",
+      "columns": [
+        {
+          "name": "transcription",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "device",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "audio_chunk_id",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "speaker_id",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "start_time",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "end_time",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        }
+      ],
+      "recordCount": 0,
+      "sampleData": []
+    },
+    {
+      "name": "audio_transcriptions_fts_config",
+      "columns": [
+        {
+          "name": "k",
+          "type": "",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": true
+        },
+        {
+          "name": "v",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        }
+      ],
+      "recordCount": 1,
+      "sampleData": [
+        {
+          "k": "version",
+          "v": 4
+        }
+      ]
+    },
+    {
+      "name": "audio_transcriptions_fts_content",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": true
+        },
+        {
+          "name": "c0",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "c1",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "c2",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "c3",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "c4",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "c5",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        }
+      ],
+      "recordCount": 0,
+      "sampleData": []
+    },
+    {
+      "name": "audio_transcriptions_fts_data",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": true
+        },
+        {
+          "name": "block",
+          "type": "BLOB",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        }
+      ],
+      "recordCount": 2,
+      "sampleData": [
+        {
+          "id": 1,
+          "block": "[BLOB: 0 bytes]"
+        },
+        {
+          "id": 10,
+          "block": "[BLOB: 7 bytes]"
+        }
+      ]
+    },
+    {
+      "name": "audio_transcriptions_fts_docsize",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": true
+        },
+        {
+          "name": "sz",
+          "type": "BLOB",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        }
+      ],
+      "recordCount": 0,
+      "sampleData": []
+    },
+    {
+      "name": "audio_transcriptions_fts_idx",
+      "columns": [
+        {
+          "name": "segid",
+          "type": "",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": true
+        },
+        {
+          "name": "term",
+          "type": "",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "pgno",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        }
+      ],
+      "recordCount": 0,
+      "sampleData": []
+    },
+    {
+      "name": "chunked_text_entries",
+      "columns": [
+        {
+          "name": "text_id",
+          "type": "INTEGER",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "frame_id",
+          "type": "INTEGER",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "audio_chunk_id",
+          "type": "INTEGER",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "timestamp",
+          "type": "DATETIME",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "engine",
+          "type": "TEXT",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "chunking_engine",
+          "type": "TEXT",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "source",
+          "type": "TEXT",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": false
+        }
+      ],
+      "recordCount": 0,
+      "sampleData": []
+    },
+    {
+      "name": "chunked_text_index",
+      "columns": [
+        {
+          "name": "text_id",
+          "type": "INTEGER",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": true
+        },
+        {
+          "name": "text",
+          "type": "TEXT",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": false
+        }
+      ],
+      "recordCount": 0,
+      "sampleData": []
+    },
+    {
+      "name": "chunked_text_index_fts",
+      "columns": [
+        {
+          "name": "text_id",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "text",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        }
+      ],
+      "recordCount": 0,
+      "sampleData": []
+    },
+    {
+      "name": "chunked_text_index_fts_config",
+      "columns": [
+        {
+          "name": "k",
+          "type": "",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": true
+        },
+        {
+          "name": "v",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        }
+      ],
+      "recordCount": 1,
+      "sampleData": [
+        {
+          "k": "version",
+          "v": 4
+        }
+      ]
+    },
+    {
+      "name": "chunked_text_index_fts_content",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": true
+        },
+        {
+          "name": "c0",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "c1",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        }
+      ],
+      "recordCount": 0,
+      "sampleData": []
+    },
+    {
+      "name": "chunked_text_index_fts_data",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": true
+        },
+        {
+          "name": "block",
+          "type": "BLOB",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        }
+      ],
+      "recordCount": 2,
+      "sampleData": [
+        {
+          "id": 1,
+          "block": "[BLOB: 0 bytes]"
+        },
+        {
+          "id": 10,
+          "block": "[BLOB: 7 bytes]"
+        }
+      ]
+    },
+    {
+      "name": "chunked_text_index_fts_docsize",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": true
+        },
+        {
+          "name": "sz",
+          "type": "BLOB",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        }
+      ],
+      "recordCount": 0,
+      "sampleData": []
+    },
+    {
+      "name": "chunked_text_index_fts_idx",
+      "columns": [
+        {
+          "name": "segid",
+          "type": "",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": true
+        },
+        {
+          "name": "term",
+          "type": "",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "pgno",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        }
+      ],
+      "recordCount": 0,
+      "sampleData": []
+    },
+    {
+      "name": "frames",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": true
+        },
+        {
+          "name": "video_chunk_id",
+          "type": "INTEGER",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "offset_index",
+          "type": "INTEGER",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "timestamp",
+          "type": "TIMESTAMP",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "browser_url",
+          "type": "TEXT",
+          "notnull": false,
+          "dflt_value": "NULL",
+          "pk": false
+        },
+        {
+          "name": "app_name",
+          "type": "TEXT",
+          "notnull": false,
+          "dflt_value": "NULL",
+          "pk": false
+        },
+        {
+          "name": "window_name",
+          "type": "TEXT",
+          "notnull": false,
+          "dflt_value": "NULL",
+          "pk": false
+        },
+        {
+          "name": "focused",
+          "type": "BOOLEAN",
+          "notnull": false,
+          "dflt_value": "NULL",
+          "pk": false
+        }
+      ],
+      "recordCount": 161,
+      "sampleData": [
+        {
+          "id": 1,
+          "video_chunk_id": 2,
+          "offset_index": 0,
+          "timestamp": "2025-11-06T19:03:45.917346500+00:00",
+          "name": "C:\\Users\\song8\\.screenpipe\\data\\monitor_64819219_2025-11-06_19-03-42.mp4",
+          "browser_url": null,
+          "app_name": "Windows Terminal Host",
+          "window_name": "D:\\software\\screenpipe\\screenpipe.exe",
+          "focused": 1
+        },
+        {
+          "id": 2,
+          "video_chunk_id": 2,
+          "offset_index": 1,
+          "timestamp": "2025-11-06T19:03:48.905608700+00:00",
+          "name": "C:\\Users\\song8\\.screenpipe\\data\\monitor_64819219_2025-11-06_19-03-42.mp4",
+          "browser_url": null,
+          "app_name": "Windows Terminal Host",
+          "window_name": "D:\\software\\screenpipe\\screenpipe.exe",
+          "focused": 1
+        },
+        {
+          "id": 3,
+          "video_chunk_id": 2,
+          "offset_index": 2,
+          "timestamp": "2025-11-06T19:03:52.139557600+00:00",
+          "name": "C:\\Users\\song8\\.screenpipe\\data\\monitor_64819219_2025-11-06_19-03-42.mp4",
+          "browser_url": null,
+          "app_name": "Windows Terminal Host",
+          "window_name": "D:\\software\\screenpipe\\screenpipe.exe",
+          "focused": 1
+        },
+        {
+          "id": 4,
+          "video_chunk_id": 2,
+          "offset_index": 3,
+          "timestamp": "2025-11-06T19:03:55.861308400+00:00",
+          "name": "C:\\Users\\song8\\.screenpipe\\data\\monitor_64819219_2025-11-06_19-03-42.mp4",
+          "browser_url": null,
+          "app_name": "Windows Terminal Host",
+          "window_name": "D:\\software\\screenpipe\\screenpipe.exe",
+          "focused": 1
+        },
+        {
+          "id": 5,
+          "video_chunk_id": 2,
+          "offset_index": 4,
+          "timestamp": "2025-11-06T19:03:59.418137600+00:00",
+          "name": "C:\\Users\\song8\\.screenpipe\\data\\monitor_64819219_2025-11-06_19-03-42.mp4",
+          "browser_url": null,
+          "app_name": "Windows Terminal Host",
+          "window_name": "D:\\software\\screenpipe\\screenpipe.exe",
+          "focused": 1
+        }
+      ]
+    },
+    {
+      "name": "frames_fts",
+      "columns": [
+        {
+          "name": "name",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "browser_url",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "app_name",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "window_name",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "focused",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "id",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        }
+      ],
+      "recordCount": 161,
+      "sampleData": [
+        {
+          "name": "C:\\Users\\song8\\.screenpipe\\data\\monitor_64819219_2025-11-06_19-03-42.mp4",
+          "browser_url": "",
+          "app_name": "Windows Terminal Host",
+          "window_name": "D:\\software\\screenpipe\\screenpipe.exe",
+          "focused": 1,
+          "id": 1
+        },
+        {
+          "name": "C:\\Users\\song8\\.screenpipe\\data\\monitor_64819219_2025-11-06_19-03-42.mp4",
+          "browser_url": "",
+          "app_name": "Windows Terminal Host",
+          "window_name": "D:\\software\\screenpipe\\screenpipe.exe",
+          "focused": 1,
+          "id": 2
+        },
+        {
+          "name": "C:\\Users\\song8\\.screenpipe\\data\\monitor_64819219_2025-11-06_19-03-42.mp4",
+          "browser_url": "",
+          "app_name": "Windows Terminal Host",
+          "window_name": "D:\\software\\screenpipe\\screenpipe.exe",
+          "focused": 1,
+          "id": 3
+        },
+        {
+          "name": "C:\\Users\\song8\\.screenpipe\\data\\monitor_64819219_2025-11-06_19-03-42.mp4",
+          "browser_url": "",
+          "app_name": "Windows Terminal Host",
+          "window_name": "D:\\software\\screenpipe\\screenpipe.exe",
+          "focused": 1,
+          "id": 4
+        },
+        {
+          "name": "C:\\Users\\song8\\.screenpipe\\data\\monitor_64819219_2025-11-06_19-03-42.mp4",
+          "browser_url": "",
+          "app_name": "Windows Terminal Host",
+          "window_name": "D:\\software\\screenpipe\\screenpipe.exe",
+          "focused": 1,
+          "id": 5
+        }
+      ]
+    },
+    {
+      "name": "frames_fts_config",
+      "columns": [
+        {
+          "name": "k",
+          "type": "",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": true
+        },
+        {
+          "name": "v",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        }
+      ],
+      "recordCount": 1,
+      "sampleData": [
+        {
+          "k": "version",
+          "v": 4
+        }
+      ]
+    },
+    {
+      "name": "frames_fts_content",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": true
+        },
+        {
+          "name": "c0",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "c1",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "c2",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "c3",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "c4",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "c5",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        }
+      ],
+      "recordCount": 161,
+      "sampleData": [
+        {
+          "id": 1,
+          "c0": "C:\\Users\\song8\\.screenpipe\\data\\monitor_64819219_2025-11-06_19-03-42.mp4",
+          "c1": "",
+          "c2": "Windows Terminal Host",
+          "c3": "D:\\software\\screenpipe\\screenpipe.exe",
+          "c4": 1,
+          "c5": 1
+        },
+        {
+          "id": 2,
+          "c0": "C:\\Users\\song8\\.screenpipe\\data\\monitor_64819219_2025-11-06_19-03-42.mp4",
+          "c1": "",
+          "c2": "Windows Terminal Host",
+          "c3": "D:\\software\\screenpipe\\screenpipe.exe",
+          "c4": 1,
+          "c5": 2
+        },
+        {
+          "id": 3,
+          "c0": "C:\\Users\\song8\\.screenpipe\\data\\monitor_64819219_2025-11-06_19-03-42.mp4",
+          "c1": "",
+          "c2": "Windows Terminal Host",
+          "c3": "D:\\software\\screenpipe\\screenpipe.exe",
+          "c4": 1,
+          "c5": 3
+        },
+        {
+          "id": 4,
+          "c0": "C:\\Users\\song8\\.screenpipe\\data\\monitor_64819219_2025-11-06_19-03-42.mp4",
+          "c1": "",
+          "c2": "Windows Terminal Host",
+          "c3": "D:\\software\\screenpipe\\screenpipe.exe",
+          "c4": 1,
+          "c5": 4
+        },
+        {
+          "id": 5,
+          "c0": "C:\\Users\\song8\\.screenpipe\\data\\monitor_64819219_2025-11-06_19-03-42.mp4",
+          "c1": "",
+          "c2": "Windows Terminal Host",
+          "c3": "D:\\software\\screenpipe\\screenpipe.exe",
+          "c4": 1,
+          "c5": 5
+        }
+      ]
+    },
+    {
+      "name": "frames_fts_data",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": true
+        },
+        {
+          "name": "block",
+          "type": "BLOB",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        }
+      ],
+      "recordCount": 11,
+      "sampleData": [
+        {
+          "id": 1,
+          "block": "[BLOB: 12 bytes]"
+        },
+        {
+          "id": 10,
+          "block": "[BLOB: 30 bytes]"
+        },
+        {
+          "id": 137438953473,
+          "block": "[BLOB: 207 bytes]"
+        },
+        {
+          "id": 274877906945,
+          "block": "[BLOB: 207 bytes]"
+        },
+        {
+          "id": 412316860417,
+          "block": "[BLOB: 202 bytes]"
+        }
+      ]
+    },
+    {
+      "name": "frames_fts_docsize",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": true
+        },
+        {
+          "name": "sz",
+          "type": "BLOB",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        }
+      ],
+      "recordCount": 161,
+      "sampleData": [
+        {
+          "id": 1,
+          "sz": "[BLOB: 6 bytes]"
+        },
+        {
+          "id": 2,
+          "sz": "[BLOB: 6 bytes]"
+        },
+        {
+          "id": 3,
+          "sz": "[BLOB: 6 bytes]"
+        },
+        {
+          "id": 4,
+          "sz": "[BLOB: 6 bytes]"
+        },
+        {
+          "id": 5,
+          "sz": "[BLOB: 6 bytes]"
+        }
+      ]
+    },
+    {
+      "name": "frames_fts_idx",
+      "columns": [
+        {
+          "name": "segid",
+          "type": "",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": true
+        },
+        {
+          "name": "term",
+          "type": "",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "pgno",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        }
+      ],
+      "recordCount": 9,
+      "sampleData": [
+        {
+          "segid": 1,
+          "term": "[BLOB: 0 bytes]",
+          "pgno": 2
+        },
+        {
+          "segid": 2,
+          "term": "[BLOB: 0 bytes]",
+          "pgno": 2
+        },
+        {
+          "segid": 3,
+          "term": "[BLOB: 0 bytes]",
+          "pgno": 2
+        },
+        {
+          "segid": 16,
+          "term": "[BLOB: 0 bytes]",
+          "pgno": 2
+        },
+        {
+          "segid": 16,
+          "term": "[BLOB: 3 bytes]",
+          "pgno": 4
+        }
+      ]
+    },
+    {
+      "name": "friend_wearable_requests",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": true
+        },
+        {
+          "name": "request_id",
+          "type": "TEXT",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "memory_source",
+          "type": "TEXT",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "chunk_id_range",
+          "type": "TEXT",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "timestamp_range",
+          "type": "TEXT",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "friend_user_id",
+          "type": "TEXT",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "created_at",
+          "type": "DATETIME",
+          "notnull": false,
+          "dflt_value": "CURRENT_TIMESTAMP",
+          "pk": false
+        },
+        {
+          "name": "filtered_text",
+          "type": "TEXT",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "structured_response",
+          "type": "TEXT",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "response_id",
+          "type": "TEXT",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "response_created_at",
+          "type": "DATETIME",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "is_successful",
+          "type": "BOOLEAN",
+          "notnull": true,
+          "dflt_value": "TRUE",
+          "pk": false
+        }
+      ],
+      "recordCount": 0,
+      "sampleData": []
+    },
+    {
+      "name": "ocr_text",
+      "columns": [
+        {
+          "name": "frame_id",
+          "type": "INTEGER",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "text",
+          "type": "TEXT",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "text_json",
+          "type": "TEXT",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "app_name",
+          "type": "TEXT",
+          "notnull": true,
+          "dflt_value": "''",
+          "pk": false
+        },
+        {
+          "name": "ocr_engine",
+          "type": "TEXT",
+          "notnull": true,
+          "dflt_value": "'unknown'",
+          "pk": false
+        },
+        {
+          "name": "window_name",
+          "type": "TEXT",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "focused",
+          "type": "BOOLEAN",
+          "notnull": false,
+          "dflt_value": "FALSE",
+          "pk": false
+        },
+        {
+          "name": "text_length",
+          "type": "INTEGER",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        }
+      ],
+      "recordCount": 161,
+      "sampleData": [
+        {
+          "frame_id": 1,
+          "text": "D:\\software\\screenpipe\\scree 2025 一 11 一 07T03 ： 03 ： 40 ． 148820Z INFO screenpipe—server: :video: 扬 声 ． 暑 § （ 7 一 USB Aud 土 0 Device) ． aud 土 0 devices disabled PIPes n 0 pxpes available Starting mon...",
+          "text_json": "[{\"confidence\":\"1.0\",\"text\":\"D:\\\\software\\\\screenpipe\\\\scree 2025 一 11 一 07T03 ： 03 ： 40 ． 148820Z INFO screenpipe—server: :video: 扬 声 ． 暑 § （ 7 一 USB Aud 土 0 Device) ． aud 土 0 devices disabled PIPes ...",
+          "app_name": "",
+          "ocr_engine": "WindowsNative",
+          "window_name": null,
+          "focused": 0,
+          "text_length": 2298
+        },
+        {
+          "frame_id": 2,
+          "text": "D:\\software\\screenpipe\\scree 2025 一 11 一 07T03 ： 03 ： 40 ． 148820Z INFO screenpipe—server: :video: 扬 声 ． 暑 § （ 7 一 USB Aud 土 0 Device) ． aud 土 0 devices disabled PIPes n 0 pxpes available Starting mon...",
+          "text_json": "[{\"text\":\"D:\\\\software\\\\screenpipe\\\\scree 2025 一 11 一 07T03 ： 03 ： 40 ． 148820Z INFO screenpipe—server: :video: 扬 声 ． 暑 § （ 7 一 USB Aud 土 0 Device) ． aud 土 0 devices disabled PIPes n 0 pxpes available...",
+          "app_name": "",
+          "ocr_engine": "WindowsNative",
+          "window_name": null,
+          "focused": 0,
+          "text_length": 2298
+        },
+        {
+          "frame_id": 3,
+          "text": "D:\\software\\screenpipe\\scree 2025 一 11 一 07T03 ： 03 ： 40 ． 148820Z INFO screenpipe—server: :video: Starting monitor availability check for monitor 64819219 扬 声 ． 暑 § （ 7 一 USB Aud 土 0 Device) ． aud 土 ...",
+          "text_json": "[{\"confidence\":\"1.0\",\"text\":\"D:\\\\software\\\\screenpipe\\\\scree 2025 一 11 一 07T03 ： 03 ： 40 ． 148820Z INFO screenpipe—server: :video: Starting monitor availability check for monitor 64819219 扬 声 ． 暑 § （ ...",
+          "app_name": "",
+          "ocr_engine": "WindowsNative",
+          "window_name": null,
+          "focused": 0,
+          "text_length": 3228
+        },
+        {
+          "frame_id": 4,
+          "text": "D:\\software\\screenpipe\\scree 2025 一 11 一 07T03 ： 03 ： 40 ． 148820Z INFO screenpipe—server: :video: Starting monitor availability check for monitor 64819219 扬 声 ． 暑 § （ 7 一 USB Aud 土 0 Device) ． aud 土 ...",
+          "text_json": "[{\"confidence\":\"1.0\",\"text\":\"D:\\\\software\\\\screenpipe\\\\scree 2025 一 11 一 07T03 ： 03 ： 40 ． 148820Z INFO screenpipe—server: :video: Starting monitor availability check for monitor 64819219 扬 声 ． 暑 § （ ...",
+          "app_name": "",
+          "ocr_engine": "WindowsNative",
+          "window_name": null,
+          "focused": 0,
+          "text_length": 3228
+        },
+        {
+          "frame_id": 5,
+          "text": "D:\\software\\screenpipe\\scree warning: telemetry is enabled ． only error—level data wiII be sent ． to disable ， use the —disable—telemetry flag ． check latest changes here ： https://github. com/mediar—...",
+          "text_json": "[{\"confidence\":\"1.0\",\"text\":\"D:\\\\software\\\\screenpipe\\\\scree warning: telemetry is enabled ． only error—level data wiII be sent ． to disable ， use the —disable—telemetry flag ． check latest changes he...",
+          "app_name": "",
+          "ocr_engine": "WindowsNative",
+          "window_name": null,
+          "focused": 0,
+          "text_length": 2883
+        }
+      ]
+    },
+    {
+      "name": "ocr_text_embeddings",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": true
+        },
+        {
+          "name": "frame_id",
+          "type": "INTEGER",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "embedding",
+          "type": "BLOB",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "created_at",
+          "type": "DATETIME",
+          "notnull": false,
+          "dflt_value": "CURRENT_TIMESTAMP",
+          "pk": false
+        }
+      ],
+      "recordCount": 0,
+      "sampleData": []
+    },
+    {
+      "name": "ocr_text_fts",
+      "columns": [
+        {
+          "name": "text",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "app_name",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "window_name",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "frame_id",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        }
+      ],
+      "recordCount": 161,
+      "sampleData": [
+        {
+          "text": "D:\\software\\screenpipe\\scree 2025 一 11 一 07T03 ： 03 ： 40 ． 148820Z INFO screenpipe—server: :video: 扬 声 ． 暑 § （ 7 一 USB Aud 土 0 Device) ． aud 土 0 devices disabled PIPes n 0 pxpes available Starting mon...",
+          "app_name": "",
+          "window_name": "",
+          "frame_id": 1
+        },
+        {
+          "text": "D:\\software\\screenpipe\\scree 2025 一 11 一 07T03 ： 03 ： 40 ． 148820Z INFO screenpipe—server: :video: 扬 声 ． 暑 § （ 7 一 USB Aud 土 0 Device) ． aud 土 0 devices disabled PIPes n 0 pxpes available Starting mon...",
+          "app_name": "",
+          "window_name": "",
+          "frame_id": 2
+        },
+        {
+          "text": "D:\\software\\screenpipe\\scree 2025 一 11 一 07T03 ： 03 ： 40 ． 148820Z INFO screenpipe—server: :video: Starting monitor availability check for monitor 64819219 扬 声 ． 暑 § （ 7 一 USB Aud 土 0 Device) ． aud 土 ...",
+          "app_name": "",
+          "window_name": "",
+          "frame_id": 3
+        },
+        {
+          "text": "D:\\software\\screenpipe\\scree 2025 一 11 一 07T03 ： 03 ： 40 ． 148820Z INFO screenpipe—server: :video: Starting monitor availability check for monitor 64819219 扬 声 ． 暑 § （ 7 一 USB Aud 土 0 Device) ． aud 土 ...",
+          "app_name": "",
+          "window_name": "",
+          "frame_id": 4
+        },
+        {
+          "text": "D:\\software\\screenpipe\\scree warning: telemetry is enabled ． only error—level data wiII be sent ． to disable ， use the —disable—telemetry flag ． check latest changes here ： https://github. com/mediar—...",
+          "app_name": "",
+          "window_name": "",
+          "frame_id": 5
+        }
+      ]
+    },
+    {
+      "name": "ocr_text_fts_config",
+      "columns": [
+        {
+          "name": "k",
+          "type": "",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": true
+        },
+        {
+          "name": "v",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        }
+      ],
+      "recordCount": 1,
+      "sampleData": [
+        {
+          "k": "version",
+          "v": 4
+        }
+      ]
+    },
+    {
+      "name": "ocr_text_fts_content",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": true
+        },
+        {
+          "name": "c0",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "c1",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "c2",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "c3",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        }
+      ],
+      "recordCount": 161,
+      "sampleData": [
+        {
+          "id": 1,
+          "c0": "D:\\software\\screenpipe\\scree 2025 一 11 一 07T03 ： 03 ： 40 ． 148820Z INFO screenpipe—server: :video: 扬 声 ． 暑 § （ 7 一 USB Aud 土 0 Device) ． aud 土 0 devices disabled PIPes n 0 pxpes available Starting mon...",
+          "c1": "",
+          "c2": "",
+          "c3": 1
+        },
+        {
+          "id": 2,
+          "c0": "D:\\software\\screenpipe\\scree 2025 一 11 一 07T03 ： 03 ： 40 ． 148820Z INFO screenpipe—server: :video: 扬 声 ． 暑 § （ 7 一 USB Aud 土 0 Device) ． aud 土 0 devices disabled PIPes n 0 pxpes available Starting mon...",
+          "c1": "",
+          "c2": "",
+          "c3": 2
+        },
+        {
+          "id": 3,
+          "c0": "D:\\software\\screenpipe\\scree 2025 一 11 一 07T03 ： 03 ： 40 ． 148820Z INFO screenpipe—server: :video: Starting monitor availability check for monitor 64819219 扬 声 ． 暑 § （ 7 一 USB Aud 土 0 Device) ． aud 土 ...",
+          "c1": "",
+          "c2": "",
+          "c3": 3
+        },
+        {
+          "id": 4,
+          "c0": "D:\\software\\screenpipe\\scree 2025 一 11 一 07T03 ： 03 ： 40 ． 148820Z INFO screenpipe—server: :video: Starting monitor availability check for monitor 64819219 扬 声 ． 暑 § （ 7 一 USB Aud 土 0 Device) ． aud 土 ...",
+          "c1": "",
+          "c2": "",
+          "c3": 4
+        },
+        {
+          "id": 5,
+          "c0": "D:\\software\\screenpipe\\scree warning: telemetry is enabled ． only error—level data wiII be sent ． to disable ， use the —disable—telemetry flag ． check latest changes here ： https://github. com/mediar—...",
+          "c1": "",
+          "c2": "",
+          "c3": 5
+        }
+      ]
+    },
+    {
+      "name": "ocr_text_fts_data",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": true
+        },
+        {
+          "name": "block",
+          "type": "BLOB",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        }
+      ],
+      "recordCount": 50,
+      "sampleData": [
+        {
+          "id": 1,
+          "block": "[BLOB: 8 bytes]"
+        },
+        {
+          "id": 10,
+          "block": "[BLOB: 44 bytes]"
+        },
+        {
+          "id": 137438953473,
+          "block": "[BLOB: 4050 bytes]"
+        },
+        {
+          "id": 137438953474,
+          "block": "[BLOB: 4035 bytes]"
+        },
+        {
+          "id": 137438953475,
+          "block": "[BLOB: 4050 bytes]"
+        }
+      ]
+    },
+    {
+      "name": "ocr_text_fts_docsize",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": true
+        },
+        {
+          "name": "sz",
+          "type": "BLOB",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        }
+      ],
+      "recordCount": 161,
+      "sampleData": [
+        {
+          "id": 1,
+          "sz": "[BLOB: 5 bytes]"
+        },
+        {
+          "id": 2,
+          "sz": "[BLOB: 5 bytes]"
+        },
+        {
+          "id": 3,
+          "sz": "[BLOB: 5 bytes]"
+        },
+        {
+          "id": 4,
+          "sz": "[BLOB: 5 bytes]"
+        },
+        {
+          "id": 5,
+          "sz": "[BLOB: 5 bytes]"
+        }
+      ]
+    },
+    {
+      "name": "ocr_text_fts_idx",
+      "columns": [
+        {
+          "name": "segid",
+          "type": "",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": true
+        },
+        {
+          "name": "term",
+          "type": "",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "pgno",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        }
+      ],
+      "recordCount": 48,
+      "sampleData": [
+        {
+          "segid": 1,
+          "term": "[BLOB: 0 bytes]",
+          "pgno": 2
+        },
+        {
+          "segid": 1,
+          "term": "[BLOB: 5 bytes]",
+          "pgno": 4
+        },
+        {
+          "segid": 1,
+          "term": "[BLOB: 4 bytes]",
+          "pgno": 6
+        },
+        {
+          "segid": 1,
+          "term": "[BLOB: 3 bytes]",
+          "pgno": 8
+        },
+        {
+          "segid": 1,
+          "term": "[BLOB: 4 bytes]",
+          "pgno": 10
+        }
+      ]
+    },
+    {
+      "name": "speaker_embeddings",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": true
+        },
+        {
+          "name": "embedding",
+          "type": "FLOAT[512]",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "speaker_id",
+          "type": "INTEGER",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        }
+      ],
+      "recordCount": 0,
+      "sampleData": []
+    },
+    {
+      "name": "speakers",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": true
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "metadata",
+          "type": "JSON",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "hallucination",
+          "type": "BOOLEAN",
+          "notnull": false,
+          "dflt_value": "FALSE",
+          "pk": false
+        }
+      ],
+      "recordCount": 0,
+      "sampleData": []
+    },
+    {
+      "name": "tags",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": true
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "created_at",
+          "type": "DATETIME",
+          "notnull": false,
+          "dflt_value": "CURRENT_TIMESTAMP",
+          "pk": false
+        }
+      ],
+      "recordCount": 0,
+      "sampleData": []
+    },
+    {
+      "name": "ui_monitoring",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": true
+        },
+        {
+          "name": "text_output",
+          "type": "TEXT",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "timestamp",
+          "type": "DATETIME",
+          "notnull": true,
+          "dflt_value": "CURRENT_TIMESTAMP",
+          "pk": false
+        },
+        {
+          "name": "app",
+          "type": "TEXT",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "window",
+          "type": "TEXT",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "initial_traversal_at",
+          "type": "DATETIME",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "text_length",
+          "type": "INTEGER",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        }
+      ],
+      "recordCount": 0,
+      "sampleData": []
+    },
+    {
+      "name": "ui_monitoring_fts",
+      "columns": [
+        {
+          "name": "text_output",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "app",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "window",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "ui_id",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        }
+      ],
+      "recordCount": 0,
+      "sampleData": []
+    },
+    {
+      "name": "ui_monitoring_fts_config",
+      "columns": [
+        {
+          "name": "k",
+          "type": "",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": true
+        },
+        {
+          "name": "v",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        }
+      ],
+      "recordCount": 1,
+      "sampleData": [
+        {
+          "k": "version",
+          "v": 4
+        }
+      ]
+    },
+    {
+      "name": "ui_monitoring_fts_content",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": true
+        },
+        {
+          "name": "c0",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "c1",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "c2",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "c3",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        }
+      ],
+      "recordCount": 0,
+      "sampleData": []
+    },
+    {
+      "name": "ui_monitoring_fts_data",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": true
+        },
+        {
+          "name": "block",
+          "type": "BLOB",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        }
+      ],
+      "recordCount": 2,
+      "sampleData": [
+        {
+          "id": 1,
+          "block": "[BLOB: 0 bytes]"
+        },
+        {
+          "id": 10,
+          "block": "[BLOB: 7 bytes]"
+        }
+      ]
+    },
+    {
+      "name": "ui_monitoring_fts_docsize",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": true
+        },
+        {
+          "name": "sz",
+          "type": "BLOB",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        }
+      ],
+      "recordCount": 0,
+      "sampleData": []
+    },
+    {
+      "name": "ui_monitoring_fts_idx",
+      "columns": [
+        {
+          "name": "segid",
+          "type": "",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": true
+        },
+        {
+          "name": "term",
+          "type": "",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "pgno",
+          "type": "",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": false
+        }
+      ],
+      "recordCount": 0,
+      "sampleData": []
+    },
+    {
+      "name": "ui_monitoring_tags",
+      "columns": [
+        {
+          "name": "ui_monitoring_id",
+          "type": "INTEGER",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": true
+        },
+        {
+          "name": "tag_id",
+          "type": "INTEGER",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": false
+        }
+      ],
+      "recordCount": 0,
+      "sampleData": []
+    },
+    {
+      "name": "video_chunks",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": false,
+          "dflt_value": null,
+          "pk": true
+        },
+        {
+          "name": "file_path",
+          "type": "TEXT",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": false
+        },
+        {
+          "name": "device_name",
+          "type": "TEXT",
+          "notnull": true,
+          "dflt_value": "''",
+          "pk": false
+        }
+      ],
+      "recordCount": 4,
+      "sampleData": [
+        {
+          "id": 1,
+          "file_path": "C:\\Users\\song8\\.screenpipe\\data\\monitor_196787_2025-11-06_19-03-41.mp4",
+          "device_name": "monitor_196787"
+        },
+        {
+          "id": 2,
+          "file_path": "C:\\Users\\song8\\.screenpipe\\data\\monitor_64819219_2025-11-06_19-03-42.mp4",
+          "device_name": "monitor_64819219"
+        },
+        {
+          "id": 3,
+          "file_path": "C:\\Users\\song8\\.screenpipe\\data\\monitor_64819219_2025-11-06_19-08-34.mp4",
+          "device_name": "monitor_64819219"
+        },
+        {
+          "id": 4,
+          "file_path": "C:\\Users\\song8\\.screenpipe\\data\\monitor_64819219_2025-11-06_19-12-35.mp4",
+          "device_name": "monitor_64819219"
+        }
+      ]
+    },
+    {
+      "name": "vision_tags",
+      "columns": [
+        {
+          "name": "vision_id",
+          "type": "INTEGER",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": true
+        },
+        {
+          "name": "tag_id",
+          "type": "INTEGER",
+          "notnull": true,
+          "dflt_value": null,
+          "pk": false
+        }
+      ],
+      "recordCount": 0,
+      "sampleData": []
+    }
+  ],
+  "relationships": [
+    {
+      "from": "ui_monitoring_tags",
+      "to": "ui_monitoring",
+      "via": "ui_monitoring_id"
+    }
+  ],
+  "summary": {
+    "totalTables": 47,
+    "totalRecords": 1458,
+    "totalColumns": 183,
+    "totalRelationships": 1
+  }
+}
