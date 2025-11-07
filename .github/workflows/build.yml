@@ -49,7 +49,7 @@ jobs:
       - name: Build Electron app (Linux)
         if: matrix.platform == 'linux'
         timeout-minutes: 20
-        run: electron-builder --linux --publish never
+        run: npm run electron:build:linux
         env:
           DEBUG: electron-builder
           ELECTRON_BUILDER_CACHE: /tmp/electron-builder-cache
@@ -57,7 +57,7 @@ jobs:
       - name: Build Electron app (Windows)
         if: matrix.platform == 'win'
         timeout-minutes: 20
-        run: electron-builder --win --publish never
+        run: npm run electron:build:win
         env:
           DEBUG: electron-builder
           ELECTRON_BUILDER_CACHE: ${{ runner.temp }}/electron-builder-cache
@@ -65,7 +65,7 @@ jobs:
       - name: Build Electron app (macOS)
         if: matrix.platform == 'mac'
         timeout-minutes: 30
-        run: electron-builder --mac --publish never
+        run: npm run electron:build:mac
         env:
           DEBUG: electron-builder
           ELECTRON_BUILDER_CACHE: /tmp/electron-builder-cache
