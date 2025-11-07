@@ -18,6 +18,40 @@
       </div>
     </div>
 
+    <!-- 时间筛选器 -->
+    <div class="time-filter">
+      <div class="filter-label">时间筛选：</div>
+      <div class="filter-inputs">
+        <div class="filter-group">
+          <label>开始时间</label>
+          <input 
+            type="datetime-local" 
+            v-model="filterStartTime"
+            @change="applyTimeFilter"
+            class="datetime-input"
+            :max="filterEndTime || (timeRange.end ? formatDateTimeLocal(timeRange.end) : '')"
+          />
+        </div>
+        <div class="filter-group">
+          <label>结束时间</label>
+          <input 
+            type="datetime-local" 
+            v-model="filterEndTime"
+            @change="applyTimeFilter"
+            class="datetime-input"
+            :min="filterStartTime || (timeRange.start ? formatDateTimeLocal(timeRange.start) : '')"
+            :max="timeRange.end ? formatDateTimeLocal(timeRange.end) : ''"
+          />
+        </div>
+        <button @click="resetTimeFilter" class="btn btn-sm btn-reset">
+          🔄 重置
+        </button>
+      </div>
+      <div v-if="hasActiveFilter" class="filter-info">
+        已筛选：{{ filteredFrames.length }} / {{ props.frames.length }} 帧
+      </div>
+    </div>
+
     <!-- 中间预览区域 -->
     <div class="preview-area">
       <div v-if="loading" class="loading">加载中...</div>
@@ -117,7 +151,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 
 const props = defineProps({
   frames: {
@@ -139,6 +173,13 @@ const isPlaying = ref(false)
 const playbackSpeed = ref(1)
 const isDragging = ref(false)
 
+// 时间筛选
+const filterStartTime = ref('')
+const filterEndTime = ref('')
+
+// 组件是否已挂载（用于防止在卸载后执行操作）
+const isMounted = ref(false)
+
 // 视频缓存：同一个视频文件只读取一次
 const videoCache = new Map()
 
@@ -151,12 +192,53 @@ const frameAvailabilityCache = new Map()
 // 响应式触发器：用于触发 computed 重新计算
 const cacheUpdateTrigger = ref(0)
 
-// 计算时间范围
-const timeRange = computed(() => {
-  if (props.frames.length === 0) {
-    return { start: null, end: null }
+// 筛选后的 frames
+const filteredFrames = computed(() => {
+  if (!filterStartTime.value && !filterEndTime.value) {
+    return props.frames
   }
-  const times = props.frames.map(f => new Date(f.timestamp).getTime())
+  
+  let filtered = [...props.frames]
+  
+  if (filterStartTime.value) {
+    const startTime = new Date(filterStartTime.value).getTime()
+    filtered = filtered.filter(f => {
+      const frameTime = new Date(f.timestamp).getTime()
+      return frameTime >= startTime
+    })
+  }
+  
+  if (filterEndTime.value) {
+    const endTime = new Date(filterEndTime.value).getTime()
+    filtered = filtered.filter(f => {
+      const frameTime = new Date(f.timestamp).getTime()
+      return frameTime <= endTime
+    })
+  }
+  
+  return filtered
+})
+
+// 是否有活动的筛选
+const hasActiveFilter = computed(() => {
+  return !!filterStartTime.value || !!filterEndTime.value
+})
+
+// 计算时间范围（基于筛选后的 frames）
+const timeRange = computed(() => {
+  const frames = filteredFrames.value
+  if (frames.length === 0) {
+    // 如果没有筛选后的帧，使用原始 frames 的范围作为参考
+    if (props.frames.length === 0) {
+      return { start: null, end: null }
+    }
+    const times = props.frames.map(f => new Date(f.timestamp).getTime())
+    return {
+      start: new Date(Math.min(...times)),
+      end: new Date(Math.max(...times))
+    }
+  }
+  const times = frames.map(f => new Date(f.timestamp).getTime())
   return {
     start: new Date(Math.min(...times)),
     end: new Date(Math.max(...times))
@@ -188,19 +270,20 @@ const timeMarkers = computed(() => {
 })
 
 // 有可用截图的帧标记点（高亮显示）
+// 优化：当标记点过多时进行采样，避免渲染过多元素导致性能问题
 const availableFrameMarkers = computed(() => {
   // 访问响应式触发器，确保缓存更新时重新计算
   const _ = cacheUpdateTrigger.value
   
-  if (!timeRange.value.start || !timeRange.value.end || props.frames.length === 0) return []
+  if (!timeRange.value.start || !timeRange.value.end || filteredFrames.value.length === 0) return []
   
   const markers = []
   const start = timeRange.value.start.getTime()
   const end = timeRange.value.end.getTime()
   const range = end - start
   
-  // 遍历所有帧，检查是否可用（使用缓存）
-  props.frames.forEach(frame => {
+  // 遍历筛选后的帧，检查是否可用（使用缓存）
+  filteredFrames.value.forEach(frame => {
     const cacheKey = `${frame.id}_${frame.name}`
     const isAvailable = frameAvailabilityCache.get(cacheKey)
     
@@ -218,19 +301,115 @@ const availableFrameMarkers = computed(() => {
     }
   })
   
+  // 如果标记点过多，进行采样优化
+  // 基于时间线宽度动态调整采样密度
+  // 假设时间线宽度约为 1000px，每个标记点至少需要 2px 间距才能清晰显示
+  // 因此最多显示约 500 个标记点
+  const maxMarkers = 500
+  if (markers.length > maxMarkers) {
+    // 使用更智能的采样策略：按时间间隔采样，而不是简单的步长
+    // 这样可以确保时间分布更均匀
+    const sampledMarkers = []
+    const step = Math.ceil(markers.length / maxMarkers)
+    
+    // 均匀采样
+    for (let i = 0; i < markers.length; i += step) {
+      sampledMarkers.push(markers[i])
+    }
+    
+    // 确保第一个和最后一个标记点被包含
+    if (markers.length > 0) {
+      const firstMarker = markers[0]
+      const lastMarker = markers[markers.length - 1]
+      
+      // 确保第一个标记点
+      if (sampledMarkers.length === 0 || sampledMarkers[0].frameId !== firstMarker.frameId) {
+        sampledMarkers.unshift(firstMarker)
+      }
+      
+      // 确保最后一个标记点
+      const lastSampled = sampledMarkers[sampledMarkers.length - 1]
+      if (lastMarker.frameId !== lastSampled.frameId) {
+        sampledMarkers.push(lastMarker)
+      }
+    }
+    
+    // 去重（以防万一）
+    const uniqueMarkers = []
+    const seenIds = new Set()
+    for (const marker of sampledMarkers) {
+      if (!seenIds.has(marker.frameId)) {
+        seenIds.add(marker.frameId)
+        uniqueMarkers.push(marker)
+      }
+    }
+    
+    return uniqueMarkers
+  }
+  
   return markers
 })
 
+// 应用时间筛选
+async function applyTimeFilter() {
+  if (!isMounted.value) return
+  
+  await nextTick()
+  const frames = filteredFrames.value
+  if (frames.length > 0) {
+    // 如果当前帧不在筛选范围内，跳转到筛选后的第一个帧
+    if (currentFrame.value) {
+      const isInFiltered = frames.some(f => f.id === currentFrame.value.id)
+      if (!isInFiltered) {
+        await updateCurrentFrame(frames[0].timestamp)
+      }
+    } else {
+      await updateCurrentFrame(frames[0].timestamp)
+    }
+  } else {
+    // 如果没有筛选结果，清空当前帧
+    if (isMounted.value) {
+      currentFrame.value = null
+      currentTime.value = null
+      imageSrc.value = ''
+    }
+  }
+}
+
+// 重置时间筛选
+async function resetTimeFilter() {
+  filterStartTime.value = ''
+  filterEndTime.value = ''
+  await applyTimeFilter()
+}
+
+// 格式化日期时间为 datetime-local 输入格式
+function formatDateTimeLocal(date) {
+  if (!date) return ''
+  try {
+    const d = new Date(date)
+    const year = d.getFullYear()
+    const month = String(d.getMonth() + 1).padStart(2, '0')
+    const day = String(d.getDate()).padStart(2, '0')
+    const hours = String(d.getHours()).padStart(2, '0')
+    const minutes = String(d.getMinutes()).padStart(2, '0')
+    return `${year}-${month}-${day}T${hours}:${minutes}`
+  } catch (e) {
+    return ''
+  }
+}
+
 // 预检查帧可用性（后台任务）
 async function precheckFrameAvailability() {
-  if (props.frames.length === 0) return
+  const frames = filteredFrames.value
+  if (frames.length === 0) return
   
   // 分批检查，避免一次性检查太多导致阻塞
   const batchSize = 10
   let checkedCount = 0
   
-  for (let i = 0; i < props.frames.length; i += batchSize) {
-    const batch = props.frames.slice(i, i + batchSize)
+  for (let i = 0; i < frames.length; i += batchSize) {
+    const batch = frames.slice(i, i + batchSize)
     
     // 并行检查一批帧
     await Promise.all(batch.map(async (frame) => {
@@ -247,21 +426,22 @@ async function precheckFrameAvailability() {
     }))
     
     // 每批之间稍作延迟，避免阻塞 UI
-    if (i + batchSize < props.frames.length) {
+    if (i + batchSize < frames.length) {
       await new Promise(resolve => setTimeout(resolve, 10))
     }
   }
 }
 
-// 根据时间查找对应的 frame
+// 根据时间查找对应的 frame（在筛选后的 frames 中查找）
 function findFrameByTime(time) {
-  if (!time || props.frames.length === 0) return null
+  const frames = filteredFrames.value
+  if (!time || frames.length === 0) return null
   
   const targetTime = new Date(time).getTime()
-  let closestFrame = props.frames[0]
+  let closestFrame = frames[0]
   let minDiff = Math.abs(new Date(closestFrame.timestamp).getTime() - targetTime)
   
-  for (const frame of props.frames) {
+  for (const frame of frames) {
     const diff = Math.abs(new Date(frame.timestamp).getTime() - targetTime)
     if (diff < minDiff) {
       minDiff = diff
@@ -274,8 +454,12 @@ function findFrameByTime(time) {
 
 // 更新当前帧
 async function updateCurrentFrame(time) {
+  if (!isMounted.value) return
+  
   const frame = findFrameByTime(time)
   if (!frame || frame.id === currentFrame.value?.id) return
+  
+  if (!isMounted.value) return
   
   currentFrame.value = frame
   currentTime.value = new Date(frame.timestamp)
@@ -284,14 +468,17 @@ async function updateCurrentFrame(time) {
   // 加载图片
   const loadResult = await loadImage(frame)
   
+  if (!isMounted.value) return
+  
   // 如果加载失败且是空文件错误，尝试查找下一个有效帧（仅在拖动时间线时）
   // 注意：stepBackward 和 stepForward 已经处理了跳过逻辑，这里只处理拖动时间线的情况
   if (!loadResult && error.value && error.value.includes('文件大小为 0')) {
-    const currentIndex = props.frames.findIndex(f => f.id === frame.id)
-    if (currentIndex >= 0 && currentIndex < props.frames.length - 1) {
+    const frames = filteredFrames.value
+    const currentIndex = frames.findIndex(f => f.id === frame.id)
+    if (currentIndex >= 0 && currentIndex < frames.length - 1) {
       // 尝试下一个帧
-      const nextFrame = props.frames[currentIndex + 1]
-      if (nextFrame) {
+      const nextFrame = frames[currentIndex + 1]
+      if (nextFrame && isMounted.value) {
         currentFrame.value = nextFrame
         currentTime.value = new Date(nextFrame.timestamp)
         emit('frame-change', nextFrame)
@@ -301,7 +488,9 @@ async function updateCurrentFrame(time) {
   }
   
   // 加载叠加数据
-  await loadOverlayData(currentFrame.value)
+  if (isMounted.value && currentFrame.value) {
+    await loadOverlayData(currentFrame.value)
+  }
 }
 
 // 加载图片（从视频中提取帧）
@@ -704,13 +893,14 @@ async function isFrameAvailable(frame) {
 
 // 查找最近的上一个可用帧
 async function findPreviousAvailableFrame(startIndex) {
+  const frames = filteredFrames.value
   if (startIndex <= 0) return null
   
   // 限制查找范围，最多向前查找 50 个帧
   const maxSearch = Math.min(50, startIndex)
   
   for (let i = startIndex - 1; i >= startIndex - maxSearch && i >= 0; i--) {
-    const frame = props.frames[i]
+    const frame = frames[i]
     if (frame && await isFrameAvailable(frame)) {
       return frame
     }
@@ -721,13 +911,14 @@ async function findPreviousAvailableFrame(startIndex) {
 
 // 查找最近的下一个可用帧
 async function findNextAvailableFrame(startIndex) {
-  if (startIndex >= props.frames.length - 1) return null
+  const frames = filteredFrames.value
+  if (startIndex >= frames.length - 1) return null
   
   // 限制查找范围，最多向后查找 50 个帧
-  const maxSearch = Math.min(50, props.frames.length - startIndex - 1)
+  const maxSearch = Math.min(50, frames.length - startIndex - 1)
   
-  for (let i = startIndex + 1; i <= startIndex + maxSearch && i < props.frames.length; i++) {
-    const frame = props.frames[i]
+  for (let i = startIndex + 1; i <= startIndex + maxSearch && i < frames.length; i++) {
+    const frame = frames[i]
     if (frame && await isFrameAvailable(frame)) {
       return frame
     }
@@ -739,11 +930,12 @@ async function findNextAvailableFrame(startIndex) {
 async function stepBackward() {
   if (!currentFrame.value) return
   
-  const currentIndex = props.frames.findIndex(f => f.id === currentFrame.value.id)
+  const frames = filteredFrames.value
+  const currentIndex = frames.findIndex(f => f.id === currentFrame.value.id)
   if (currentIndex <= 0) return
   
   // 先尝试直接上一个帧
-  const previousFrame = props.frames[currentIndex - 1]
+  const previousFrame = frames[currentIndex - 1]
   if (previousFrame) {
     // 检查是否可用
     const isAvailable = await isFrameAvailable(previousFrame)
@@ -766,11 +958,12 @@ async function stepBackward() {
 async function stepForward() {
   if (!currentFrame.value) return
   
-  const currentIndex = props.frames.findIndex(f => f.id === currentFrame.value.id)
-  if (currentIndex >= props.frames.length - 1) return
+  const frames = filteredFrames.value
+  const currentIndex = frames.findIndex(f => f.id === currentFrame.value.id)
+  if (currentIndex >= frames.length - 1) return
   
   // 先尝试直接下一个帧
-  const nextFrame = props.frames[currentIndex + 1]
+  const nextFrame = frames[currentIndex + 1]
   if (nextFrame) {
     // 检查是否可用
     const isAvailable = await isFrameAvailable(nextFrame)
@@ -824,20 +1017,25 @@ function truncateText(text, maxLength) {
 }
 
 // 初始化
-onMounted(() => {
-  if (props.frames.length > 0) {
-    const firstFrame = props.frames[0]
-    updateCurrentFrame(firstFrame.timestamp)
+onMounted(async () => {
+  isMounted.value = true
+  const frames = filteredFrames.value
+  if (frames.length > 0) {
+    const firstFrame = frames[0]
+    await updateCurrentFrame(firstFrame.timestamp)
     
     // 启动后台预检查任务
     // 延迟一下，让初始帧先加载完成
     setTimeout(() => {
-      precheckFrameAvailability()
+      if (isMounted.value) {
+        precheckFrameAvailability()
+      }
     }, 1000)
   }
 })
 
 onUnmounted(() => {
+  isMounted.value = false
   stopPlayback()
   
   // 清理 Blob URL，释放内存
@@ -860,20 +1058,59 @@ onUnmounted(() => {
     cachedVideoElement = null
     cachedVideoSrc = null
   }
+  
+  // 清空当前状态
+  currentFrame.value = null
+  currentTime.value = null
+  imageSrc.value = ''
+  filterStartTime.value = ''
+  filterEndTime.value = ''
 })
 
 // 监听 frames 变化
-watch(() => props.frames, (newFrames) => {
-  if (newFrames.length > 0 && !currentFrame.value) {
-    const firstFrame = newFrames[0]
-    updateCurrentFrame(firstFrame.timestamp)
-    
-    // 启动后台预检查任务
-    setTimeout(() => {
-      precheckFrameAvailability()
-    }, 1000)
+watch(() => props.frames, async (newFrames) => {
+  if (!isMounted.value) return
+  
+  await nextTick()
+  const frames = filteredFrames.value
+  if (frames.length > 0 && !currentFrame.value) {
+    const firstFrame = frames[0]
+    if (isMounted.value) {
+      await updateCurrentFrame(firstFrame.timestamp)
+      
+      // 启动后台预检查任务
+      setTimeout(() => {
+        if (isMounted.value) {
+          precheckFrameAvailability()
+        }
+      }, 1000)
+    }
   }
-}, { immediate: true })
+}, { immediate: true, flush: 'post' })
+
+// 监听筛选后的 frames 变化
+watch(filteredFrames, async (newFrames, oldFrames) => {
+  if (!isMounted.value) return
+  
+  // 避免在初始化时触发
+  if (!oldFrames || oldFrames.length === 0) return
+  
+  await nextTick()
+  
+  // 如果当前帧不在新的筛选结果中，跳转到第一个帧
+  if (newFrames.length > 0) {
+    if (!currentFrame.value || !newFrames.some(f => f.id === currentFrame.value.id)) {
+      if (isMounted.value) {
+        await updateCurrentFrame(newFrames[0].timestamp)
+      }
+    }
+  } else if (currentFrame.value && isMounted.value) {
+    // 如果没有筛选结果，清空当前帧
+    currentFrame.value = null
+    currentTime.value = null
+    imageSrc.value = ''
+  }
+}, { flush: 'post' })
 </script>
 
 <style scoped>
@@ -1183,6 +1420,111 @@ watch(() => props.frames, (newFrames) => {
 .btn-sm {
   padding: 6px 12px;
   font-size: 12px;
+}
+
+.btn-reset {
+  background: #e74c3c;
+}
+
+.btn-reset:hover {
+  background: #c0392b;
+}
+
+/* 时间筛选器样式 */
+.time-filter {
+  padding: 12px 20px;
+  background: #252525;
+  border-bottom: 1px solid #444;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.filter-label {
+  font-size: 13px;
+  color: #aaa;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.filter-inputs {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.filter-group label {
+  font-size: 11px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.datetime-input {
+  padding: 6px 10px;
+  border: 1px solid #444;
+  border-radius: 4px;
+  background: #1a1a1a;
+  color: white;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 180px;
+}
+
+.datetime-input:hover {
+  border-color: #555;
+  background: #222;
+}
+
+.datetime-input:focus {
+  outline: none;
+  border-color: #3498db;
+  background: #222;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.datetime-input::-webkit-calendar-picker-indicator {
+  filter: invert(0.8);
+  cursor: pointer;
+}
+
+.filter-info {
+  font-size: 12px;
+  color: #3498db;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .time-filter {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .filter-inputs {
+    width: 100%;
+  }
+  
+  .filter-group {
+    flex: 1;
+    min-width: 150px;
+  }
+  
+  .filter-info {
+    margin-left: 0;
+    width: 100%;
+  }
 }
 </style>
 
