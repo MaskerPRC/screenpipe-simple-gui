@@ -48,21 +48,27 @@ jobs:
 
       - name: Build Electron app (Linux)
         if: matrix.platform == 'linux'
-        run: npm run electron:build -- --linux
+        timeout-minutes: 20
+        run: electron-builder --linux --publish never
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEBUG: electron-builder
+          ELECTRON_BUILDER_CACHE: /tmp/electron-builder-cache
 
       - name: Build Electron app (Windows)
         if: matrix.platform == 'win'
-        run: npm run electron:build -- --win
+        timeout-minutes: 20
+        run: electron-builder --win --publish never
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEBUG: electron-builder
+          ELECTRON_BUILDER_CACHE: ${{ runner.temp }}/electron-builder-cache
 
       - name: Build Electron app (macOS)
         if: matrix.platform == 'mac'
-        run: npm run electron:build -- --mac
+        timeout-minutes: 30
+        run: electron-builder --mac --publish never
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEBUG: electron-builder
+          ELECTRON_BUILDER_CACHE: /tmp/electron-builder-cache
           CSC_LINK: ${{ secrets.MAC_CERTIFICATE }}
           CSC_KEY_PASSWORD: ${{ secrets.MAC_CERTIFICATE_PASSWORD }}
           APPLE_ID: ${{ secrets.APPLE_ID }}

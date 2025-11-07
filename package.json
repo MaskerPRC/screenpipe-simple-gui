@@ -11,7 +11,10 @@
     "postinstall": "electron-rebuild -f -w better-sqlite3",
     "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && electron .\"",
     "electron:dev:watch": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && nodemon\"",
-    "electron:build": "npm run build && electron-builder"
+    "electron:build": "npm run build && electron-builder --publish never --win --x64",
+    "electron:build:win": "npm run build && electron-builder --win --publish never",
+    "electron:build:mac": "npm run build && electron-builder --mac --publish never",
+    "electron:build:linux": "npm run build && electron-builder --linux --publish never"
   },
   "keywords": [
     "electron",
@@ -46,17 +49,18 @@
     "files": [
       "dist/**/*",
       "electron/**/*",
-      "node_modules/**/*",
+      "!node_modules/**/*",
+      "node_modules/better-sqlite3/**/*",
+      "node_modules/@electron/**/*",
       "package.json"
+    ],
+    "asarUnpack": [
+      "node_modules/better-sqlite3/**/*"
     ],
     "win": {
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64", "ia32"]
-        },
-        {
-          "target": "portable",
           "arch": ["x64"]
         }
       ]
@@ -65,10 +69,6 @@
       "target": [
         {
           "target": "dmg",
-          "arch": ["x64", "arm64"]
-        },
-        {
-          "target": "zip",
           "arch": ["x64", "arm64"]
         }
       ],
@@ -79,14 +79,6 @@
         {
           "target": "AppImage",
           "arch": ["x64"]
-        },
-        {
-          "target": "deb",
-          "arch": ["x64"]
-        },
-        {
-          "target": "rpm",
-          "arch": ["x64"]
         }
       ],
       "category": "Utility"
@@ -94,6 +86,9 @@
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true
+    },
+    "electronDownload": {
+      "cache": "./.electron-cache"
     }
   }
 }
